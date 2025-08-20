@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    /* Using CSS variables for easy theme management */
     :root {
       --primary-color: #007BFF;
       --primary-hover-color: #0056b3;
@@ -22,7 +21,6 @@
       --background-color: #eef2f5;
     }
 
-    /* General body styling */
     body {
       font-family: 'Poppins', sans-serif;
       background-color: var(--background-color);
@@ -35,7 +33,6 @@
       color: #333;
     }
 
-    /* The main form container with a card-like design */
     .form-container {
       background-color: #ffffff;
       padding: 40px;
@@ -46,7 +43,6 @@
       box-sizing: border-box;
     }
 
-    /* Form header styling */
     h2 {
       text-align: center;
       color: #333;
@@ -55,7 +51,6 @@
       font-weight: 600;
     }
 
-    /* Grouping for labels and inputs */
     .form-group {
       margin-bottom: 20px;
     }
@@ -67,7 +62,6 @@
       color: var(--dark-gray-color);
     }
     
-    /* Unified styling for all text inputs */
     input[type="text"],
     input[type="email"] {
       width: 100%;
@@ -80,7 +74,6 @@
       transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    /* Focus effect for a better user experience */
     input[type="text"]:focus,
     input[type="email"]:focus {
       outline: none;
@@ -88,7 +81,6 @@
       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
     }
 
-    /* Professional submit button styling */
     button[type="submit"] {
       width: 100%;
       padding: 12px 15px;
@@ -102,20 +94,18 @@
       transition: background-color 0.3s, transform 0.2s;
     }
 
-    /* Hover effect for the button */
     button[type="submit"]:hover {
       background-color: var(--primary-hover-color);
       transform: translateY(-2px);
     }
 
-    /* Styling for feedback messages */
     #message {
       margin-top: 20px;
       padding: 12px;
       border-radius: 8px;
       text-align: center;
       font-weight: 500;
-      display: none; /* Hidden by default */
+      display: none;
     }
 
     #message.success {
@@ -175,9 +165,16 @@
 
       fetch("https://script.google.com/macros/s/AKfycbwY6LcSEAhMZB3SIik6Hyxn5kSmt4ktGJcJ_ZKVZHttBllmGJvA2NKdAGWyTjhdeuYEwg/exec", {
         method: "POST",
-        body: new FormData(form) // FormData is often easier to work with
+        body: new FormData(form)
       })
-      .then(res => res.json())
+      .then(async res => {
+        try {
+          return await res.json();
+        } catch {
+          const text = await res.text();
+          throw new Error("Invalid response: " + text);
+        }
+      })
       .then(data => {
         if (data.result === "success") {
           messageDiv.textContent = "✅ Data submitted successfully!";
@@ -188,16 +185,13 @@
         }
       })
       .catch((error) => {
-        messageDiv.textContent = "❌ Error: Could not submit data. Please try again.";
+        messageDiv.textContent = "❌ Error: Could not submit data. " + error.message;
         messageDiv.classList.add("error");
         console.error("Submission Error:", error);
       })
       .finally(() => {
-        // Re-enable button
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
-
-        // Hide the message after a few seconds
         setTimeout(() => {
           messageDiv.textContent = '';
           messageDiv.className = '';
